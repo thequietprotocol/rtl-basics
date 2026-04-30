@@ -9,6 +9,7 @@ module display_7seg#(
 )(
     input logic clk, 
     input logic reset, 
+    input logic upDown,
     output logic [3:0] anode,
     output logic [7:0] cathode 
 );
@@ -16,24 +17,29 @@ module display_7seg#(
 // Counters
 logic [3:0] count0, count1, count2, count3, curr_digit;
 logic [3:0] en;
+logic [2:0] wrap_around;
 
 oneHz #(.PERIOD(TICK_PERIOD)) tick(.clk(clk), .reset(reset), .oneSec(en[0]));
 
-//hexUpCounter c0(.clk(clk), .reset(reset), .enable(en[0]), .count(count0));
-//hexUpCounter c1(.clk(clk), .reset(reset), .enable(en[1]), .count(count1));
-//hexUpCounter c2(.clk(clk), .reset(reset), .enable(en[2]), .count(count2));
-//hexUpCounter c3(.clk(clk), .reset(reset), .enable(en[3]), .count(count3));
-//assign en[1] = (count0 == 'hf) && en[0];
-//assign en[2] = (count1 == 'hf) && en[1];
-//assign en[3] = (count2 == 'hf) && en[2];
+hexUpDownCounter c0(.clk(clk), .reset(reset), .enable(en[0]), .upDown(upDown), .count(count0));
+hexUpDownCounter c1(.clk(clk), .reset(reset), .enable(en[1]), .upDown(upDown), .count(count1));
+hexUpDownCounter c2(.clk(clk), .reset(reset), .enable(en[2]), .upDown(upDown), .count(count2));
+hexUpDownCounter c3(.clk(clk), .reset(reset), .enable(en[3]), .upDown(upDown), .count(count3));
+assign wrap_around[0] = ((upDown && count0 == 4'hf) || (!upDown && count0 == 4'd0));
+assign wrap_around[1] = ((upDown && count1 == 4'hf) || (!upDown && count1 == 4'd0));
+assign wrap_around[2] = ((upDown && count2 == 4'hf) || (!upDown && count2 == 4'd0));
 
-bcdUpCounter c0(.clk(clk), .reset(reset), .enable(en[0]), .count(count0));
-bcdUpCounter c1(.clk(clk), .reset(reset), .enable(en[1]), .count(count1));
-bcdUpCounter c2(.clk(clk), .reset(reset), .enable(en[2]), .count(count2));
-bcdUpCounter c3(.clk(clk), .reset(reset), .enable(en[3]), .count(count3));
-assign en[1] = (count0 == 'd9) && en[0];
-assign en[2] = (count1 == 'd9) && en[1];
-assign en[3] = (count2 == 'd9) && en[2];
+//bcdUpDownCounter c0(.clk(clk), .reset(reset), .enable(en[0]), .upDown(upDown), .count(count0));
+//bcdUpDownCounter c1(.clk(clk), .reset(reset), .enable(en[1]), .upDown(upDown), .count(count1));
+//bcdUpDownCounter c2(.clk(clk), .reset(reset), .enable(en[2]), .upDown(upDown), .count(count2));
+//bcdUpDownCounter c3(.clk(clk), .reset(reset), .enable(en[3]), .upDown(upDown), .count(count3));
+//assign wrap_around[0] = ((upDown && count0 == 4'd9) || (!upDown && count0 == 4'd0));
+//assign wrap_around[1] = ((upDown && count1 == 4'd9) || (!upDown && count1 == 4'd0));
+//assign wrap_around[2] = ((upDown && count2 == 4'd9) || (!upDown && count2 == 4'd0));
+
+assign en[1] = wrap_around[0] && en[0];
+assign en[2] = wrap_around[1] && en[1];
+assign en[3] = wrap_around[2] && en[2];
 
 // Display
 logic [REFRESH_BIT_HI:0] led_refresh_counter;
