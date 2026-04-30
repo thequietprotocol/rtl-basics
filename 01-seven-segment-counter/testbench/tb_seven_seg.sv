@@ -4,11 +4,12 @@ module tb_display_7seg;
   logic clk = 0;
   logic reset = 1;
   logic upDown = 1;
+  logic bcdHex = 1;
   logic [3:0] anode;
   logic [7:0] cathode;
   
   // With count0 incrementing every 16 cycles, choosing [3:2] refresh bits means each digit is held for 4 cycles at cathode output
-  display_7seg #(.TICK_PERIOD(16), .REFRESH_BIT_HI(3), .REFRESH_BIT_LO(2)) dut0 (.clk(clk), .reset(reset), .upDown(upDown), .anode(anode), .cathode(cathode));
+  display_7seg #(.TICK_PERIOD(16), .REFRESH_BIT_HI(3), .REFRESH_BIT_LO(2)) dut0 (.clk(clk), .reset(reset), .upDown(upDown), .bcdHex(bcdHex), .anode(anode), .cathode(cathode));
   
   
   always #5 clk = ~clk;
@@ -20,8 +21,10 @@ module tb_display_7seg;
   
   initial begin
     #20 reset = 0;
-    #1_000_000; upDown = 0;
-    #1_000_000; $finish;
+    #500_000; bcdHex = 0;
+    #500_000; upDown = 0;
+    #500_000; bcdHex = 1;
+    #500_000; $finish;
   end
   
   function automatic string cath_to_hex(input logic [7:0] cath);
@@ -47,12 +50,20 @@ module tb_display_7seg;
         default: return "?";
     endcase
 endfunction
+
+logic [3:0] c0, c1, c2, c3;
+assign c0 = bcdHex ? dut0.bcd_count0 : dut0.hex_count0;
+assign c1 = bcdHex ? dut0.bcd_count1 : dut0.hex_count1;
+assign c2 = bcdHex ? dut0.bcd_count2 : dut0.hex_count2;
+assign c3 = bcdHex ? dut0.bcd_count3 : dut0.hex_count3;
+
+// then in $display use c0..c3
   
   initial begin
     $display("  time | c3 c2 c1 c0 anode cathode");
     forever begin
       @(anode);
-        $display("dir=%b %h %h %h %h anode=%b cathode=%h (%s)", upDown, dut0.count3, dut0.count2, dut0.count1, dut0.count0, dut0.anode, dut0.cathode, cath_to_hex(dut0.cathode));
+        $display("bcdHex=%b dir=%b %h %h %h %h anode=%b cathode=%h (%s)", bcdHex, upDown, c3, c2, c1, c0, dut0.anode, dut0.cathode, cath_to_hex(dut0.cathode));
     end  
   end
   
