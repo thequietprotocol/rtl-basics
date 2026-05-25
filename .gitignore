@@ -3,4 +3,6 @@
 *.ip_user_files/
 *.sim/
 *.xpr
+*.srcs
+*.runs
 
