@@ -10,7 +10,7 @@ SystemVerilog FPGA project for the Digilent Basys 3 board. The design drives the
 
 ### BCD Counter Demo
 
-[Watch BCD counter demo](media/BCD_Counter.mp4)
+https://github.com/user-attachments/assets/88da1585-ee6b-4dad-9e23-659139bdf430
 
 The BCD demo shows:
 
@@ -21,7 +21,7 @@ The BCD demo shows:
 
 ### HEX Counter Demo
 
-[Watch HEX counter demo](media/HEX_Counter.mp4)
+https://github.com/user-attachments/assets/2b36b74e-8764-4870-9886-7405c343e131
 
 The HEX demo shows:
 
