@@ -11,8 +11,8 @@ module display_7seg#(
     input logic reset, 
     input logic upDown,
     input logic bcdHex,
-    output logic [3:0] anode,
-    output logic [7:0] cathode 
+    output logic [3:0] an,
+    output logic [7:0] seg 
 );
 
 // Counters
@@ -66,14 +66,14 @@ end
 
 always_comb begin
   case(led_refresh_counter[REFRESH_BIT_HI:REFRESH_BIT_LO])
-        'd0: begin anode = 'b1110; curr_digit = bcdHex? bcd_count0: hex_count0; end
-        'd1: begin anode = 'b1101; curr_digit = bcdHex? bcd_count1: hex_count1; end
-        'd2: begin anode = 'b1011; curr_digit = bcdHex? bcd_count2: hex_count2; end
-        'd3: begin anode = 'b0111; curr_digit = bcdHex? bcd_count3: hex_count3; end
+        'd0: begin an = 'b1110; curr_digit = bcdHex? bcd_count0: hex_count0; end
+        'd1: begin an = 'b1101; curr_digit = bcdHex? bcd_count1: hex_count1; end
+        'd2: begin an = 'b1011; curr_digit = bcdHex? bcd_count2: hex_count2; end
+        'd3: begin an = 'b0111; curr_digit = bcdHex? bcd_count3: hex_count3; end
     endcase
 end
 
-hex_to_7seg hss(.hex(curr_digit), .dp('b0), .led_pattern(cathode));
+hex_to_7seg hss(.hex(curr_digit), .dp('b0), .led_pattern(seg));
 
 // synthesis translate_off
 assert property (@(posedge clk) disable iff(reset)
