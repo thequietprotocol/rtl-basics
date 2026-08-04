@@ -5,4 +5,7 @@
 *.xpr
 *.srcs
 *.runs
-
+*.log
+*.jou
+*.pb
+*.dir/
