@@ -54,6 +54,12 @@ assign full = (count == DEPTH);
 assign read_valid = (!empty && read_en);
 assign write_valid = (!full && write_en);
 
+// synthesis translate_off
+assert property (@(posedge clk) disable iff(reset)
+
+)
+// synthesis translate_on
+
 endmodule
 
 // ########## End of FIFO ##########
