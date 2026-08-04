@@ -1,7 +1,7 @@
 
 module pipeFixedMac #(
     parameter DATA_WIDTH = 8, // Q1.7
-    parameter ACC_WIDTH  = 20
+    parameter ACC_WIDTH  = 20 // Q6.14
 )(
     input logic clk, 
     input logic rst, 
