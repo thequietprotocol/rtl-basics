@@ -25,7 +25,7 @@ pipeFixedMac #(.DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH)) dut (
 
 int expected_q[$];
 int check_count = 0;
-localparam int NUM_EXPECTED = 13;
+localparam int NUM_EXPECTED = 78;
 
 task automatic basic_accumulate();
     @(negedge clk) a_in = 5; b_in = 10; clear_acc = 1; valid_in = 1;
@@ -65,11 +65,37 @@ task automatic pipe_bubble();
     @(negedge clk) valid_in = 0;  
 endtask
 
+task automatic overflow_positive();
+    localparam int N = 32;
+    logic signed [ACC_WIDTH-1:0] temp;
+    temp = 0;
+    for(int i = 0; i < N; i++) begin
+        @(negedge clk) a_in = -128; b_in = -128; clear_acc = (i == 0); valid_in = 1;
+        temp = (i == N-1)? 524287: temp + 16384;
+        expected_q.push_back(temp);
+    end
+    @(negedge clk) valid_in = 0;
+endtask
+
+task automatic overflow_negative();
+    localparam int N = 33;
+    logic signed [ACC_WIDTH-1:0] temp;
+    temp = 0;
+    for(int i = 0; i < N; i++) begin
+        @(negedge clk) a_in = -128; b_in = 127; clear_acc = (i == 0); valid_in = 1;
+        temp = (i == N-1)? -524288: temp - 16256;
+        expected_q.push_back(temp);
+    end
+    @(negedge clk) valid_in = 0;
+endtask
+
 initial begin
     rst = 1; repeat(2) @(negedge clk); rst = 0;
     basic_accumulate();
     back_to_back();
     pipe_bubble();
+    overflow_positive;
+    overflow_negative;
 end
 
 always @(posedge clk) begin
