@@ -4,7 +4,7 @@ Basys 3 (Artix-7 XC7A35T) · SystemVerilog · Vivado/XSIM
 
 ## Status
 - RTL: done
-- Verification: in progress
+- Verification: done
 
 ## Spec
 - Operands: Q1.7 (8-bit signed)
