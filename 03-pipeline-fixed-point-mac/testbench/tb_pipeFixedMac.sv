@@ -18,17 +18,16 @@ pipeFixedMac #(.DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH)) dut (
     .clk(clk),
     .rst(rst),
     .valid_in(valid_in),
+    .clear_acc(clear_acc),
     .a_in(a_in), .b_in(b_in),
     .valid_out(valid_out), .acc_out(acc_out)
 );
 
 int expected_q[$];
 int check_count = 0;
-localparam int NUM_EXPECTED = 6;
+localparam int NUM_EXPECTED = 13;
 
-
-initial begin
-    rst = 1; repeat(2) @(negedge clk); rst = 0;
+task automatic basic_accumulate();
     @(negedge clk) a_in = 5; b_in = 10; clear_acc = 1; valid_in = 1;
     expected_q.push_back(50);
     @(negedge clk) a_in = 10; clear_acc = 0;
@@ -41,9 +40,36 @@ initial begin
     expected_q.push_back(150);
     @(negedge clk) a_in = 8;
     expected_q.push_back(230);
-    @(negedge clk) valid_in = 0;  // No more values accumulated
-    @(negedge clk) clear_acc = 1;
-    
+endtask
+
+task automatic back_to_back();
+    @(negedge clk) a_in = 9; b_in = 2; clear_acc = 1; valid_in = 1;
+    expected_q.push_back(18);
+    @(negedge clk) b_in = 3; clear_acc = 0;
+    expected_q.push_back(45);
+    @(negedge clk) b_in = -4;
+    expected_q.push_back(9);
+    @(negedge clk) b_in = -5;
+    expected_q.push_back(-36);
+    @(negedge clk) valid_in = 0;  
+endtask
+
+task automatic pipe_bubble();
+    @(negedge clk) a_in = 4; b_in = 5; clear_acc = 1; valid_in = 1;
+    expected_q.push_back(20);
+    @(negedge clk) a_in = 7; valid_in = 0; 
+    @(negedge clk) a_in = 5; clear_acc = 0; valid_in = 1;
+    expected_q.push_back(45);
+    @(negedge clk) a_in = -7;
+    expected_q.push_back(10);
+    @(negedge clk) valid_in = 0;  
+endtask
+
+initial begin
+    rst = 1; repeat(2) @(negedge clk); rst = 0;
+    basic_accumulate();
+    back_to_back();
+    pipe_bubble();
 end
 
 always @(posedge clk) begin
