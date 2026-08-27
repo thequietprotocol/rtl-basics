@@ -1,15 +1,29 @@
-# Synchronous FIFO Buffer
-
-sync_fifo — parked, incomplete
+# Synchronous FIFO
+Basys 3 (Artix-7 XC7A35T) · SystemVerilog · Vivado/XSIM
 
 ## Status
-WIP, paused. Picking this back up once the current focus wraps up.
+- RTL: done
+- Verification: pending
 
-fifo.sv — synchronous FIFO, parameterized DATA_WIDTH/DEPTH. Pointer-based read/write, count register driving full/empty.
+## Spec
+- Data width: parameterized, `DATA_WIDTH` (default 8 bits)
+- Depth: parameterized, `DEPTH` (default 16 words), arbitrary depth supported (not restricted to powers of 2)
+- Pointer width: `$clog2(DEPTH)`, wraparound handled explicitly (not via bit-width truncation)
+- Flags: `full`, `empty`, tracked via dedicated status registers, disambiguated using precomputed pointer successors
+- Simultaneous read+write: both pointers advance; matches standard flag/pointer FIFO semantics
+- Reset: synchronous, active-high
 
-## What's missing
-No testbench — completely unverified.
-No review pass yet — hasn't been checked line-by-line.
-Before resuming
-
-Sanity-check first: the simultaneous read+write branch in the count update, and pointer wraparound behavior at DEPTH-1.
+## Interface
+```systemverilog
+module sync_fifo #(
+    parameter int DATA_WIDTH = 8,
+    parameter int DEPTH      = 16
+)(
+    input  logic clk, reset,
+    input  logic read_en, write_en,
+    input  logic [DATA_WIDTH-1:0] data_in,
+    output logic [DATA_WIDTH-1:0] data_out,
+    output logic full,
+    output logic empty
+);
+```
