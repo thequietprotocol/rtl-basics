@@ -1,6 +1,7 @@
 // fifo.sv
 
 // ########## FIFO ##########
+`timescale 1ns/1ps
 
 module sync_fifo#(
     parameter int DATA_WIDTH = 8,
@@ -29,7 +30,9 @@ always_ff @(posedge clk) begin
 end
 
 // Read
-assign data_out = fifo_mem[read_ptr];
+always_ff @(posedge clk) begin
+    if(read_en && !empty_reg) data_out <= fifo_mem[read_ptr];
+end
 
 logic [$clog2(DEPTH)-1:0] read_ptr_succ, write_ptr_succ;
 assign read_ptr_succ  = (read_ptr  == DEPTH-1) ? '0 : read_ptr  + 1;
@@ -57,8 +60,16 @@ always_ff @(posedge clk) begin
                     if(write_ptr_succ == read_ptr) full_reg <= 1'b1;
                 end
             2'b11: begin // Write and Read
-                write_ptr <= write_ptr_succ;
-                read_ptr <= read_ptr_succ;
+                if(empty_reg) begin
+                    write_ptr <= write_ptr_succ;
+                    empty_reg <= '0;
+                end else if(full_reg) begin
+                    read_ptr <= read_ptr_succ;
+                    full_reg <= '0;
+                end else begin
+                    write_ptr <= write_ptr_succ;
+                    read_ptr <= read_ptr_succ;
+                end
             end
         endcase
     end
