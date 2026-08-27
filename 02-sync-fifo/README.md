@@ -3,7 +3,7 @@ Basys 3 (Artix-7 XC7A35T) · SystemVerilog · Vivado/XSIM
 
 ## Status
 - RTL: done
-- Verification: pending
+- Verification: done
 
 ## Spec
 - Data width: parameterized, `DATA_WIDTH` (default 8 bits)
