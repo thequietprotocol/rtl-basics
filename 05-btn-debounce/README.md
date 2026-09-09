@@ -1,14 +1,17 @@
 # Debounce Circuits
 Basys 3 (Artix-7 XC7A35T) · SystemVerilog · Vivado/XSIM
 
-# Delayed Debounce
-
-## Status
+## Status - Delayed Debounce
 - RTL: done
 - Verification: in-progress
 - Hardware Validation: not yet
 
-## Spec
+## Status - Early Debounce
+- RTL: not yet
+- Verification: not yet
+- Hardware Validation: not yet
+
+## Spec - Delayed Debounce
 - Input: single-bit button signal, `btn`
 - Output: single-bit debounced signal, synchronous to `SYS_CLK`
 - Polling interval: `btn` sampled every `TICK_TIME` ns (default 10 ms)
