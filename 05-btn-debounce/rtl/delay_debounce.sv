@@ -3,28 +3,21 @@ module delay_debounce #(
     parameter TICK_TIME = 10_000_000, // (in ns)
     parameter SYS_CLK = 10 // (in ns)
 )(
-    input clk,
-    input rst,
-    input btn, 
-    output db
+    input logic clk,
+    input logic rst,
+    input logic btn, 
+    output logic db
 );
 
 localparam CLK_COUNT = TICK_TIME / SYS_CLK;
 logic poll_tick;
-logic [31:0] counter;
 
-always_ff @(posedge clk) begin
-    if(rst) begin
-        poll_tick <= '0;
-        counter <= '0;
-    end else if(counter == CLK_COUNT - 1) begin
-        poll_tick <= 1'b1;
-        counter <= '0;
-    end else begin
-        poll_tick <= '0;
-        counter <= counter + 1;
-    end
-end
+modulo_count #(.COUNT(CLK_COUNT)) ticker (
+    .clk(clk),
+    .rst(rst),
+    .q_count(),
+    .max_tick(poll_tick)
+);
 
 // at least 20 ms depending on how long before a poll_tick button is pressed
 typedef enum logic [2:0] {zero, press, wait1_0, wait2_0, one, unpress, wait1_1, wait2_1} state_t;
@@ -36,6 +29,7 @@ always_ff @(posedge clk) begin
 end
 
 always_comb begin
+    next_state = curr_state;
     case(curr_state)
         zero: next_state = btn? press: zero;
         press: begin
